@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Змейка</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    /*Задаём глобальные параметры*/
+    body {
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /*Делаем границу вокруг игрового поля*/
+    canvas {
+      border: 1px solid white;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="ui" style="color: #fff;">Следующий ходит: <div id="color">Синий</div></div>
+  <!-- Рисуем игровое поле -->
+  <div><canvas width="400" height="400" id="game"></canvas></div>
+  <!-- Сам скрипт с игрой -->
+  <script>
+    // Поле, на котором всё будет происходить, — тоже как бы переменная
+    var canvas = document.getElementById('game');
+    // Классическая змейка — двухмерная, сделаем такую же
+    var context = canvas.getContext('2d');
+    // Размер одной клеточки на поле — 16 пикселей
+    var grid = 40;
+    //флаг - чей ход
+    var move = 0;
+    // А вот и сама змейка
+    var snakeRed = {
+      // Начальные координаты
+      x: 160,
+      y: 160,
+      // Скорость змейки — в каждом новом кадре змейка смещается по оси Х или У. На старте будет двигаться горизонтально, поэтому скорость по игреку равна нулю.
+      dx: grid,
+      dy: 0,
+      // Тащим за собой хвост, который пока пустой
+      cells: [],
+    };
+    var snakeBlue = {
+      // Начальные координаты
+      x: 160,
+      y: 160,
+      // Скорость змейки — в каждом новом кадре змейка смещается по оси Х или У. На старте будет двигаться горизонтально, поэтому скорость по игреку равна нулю.
+      dx: grid,
+      dy: 0,
+      // Тащим за собой хвост, который пока пустой
+      cells: [],
+    };
+    // Делаем генератор случайных чисел в заданном диапазоне
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min)) + min;
+    }
+    // Игровой цикл — основной процесс, внутри которого будет всё происходить
+    function loop() {
+      // Очищаем игровое поле
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      // Двигаем змейку с нужной скоростью
+      snakeRed.x += snakeRed.dx;
+      snakeRed.y += snakeRed.dy;
+      // Если змейка достигла края поля по горизонтали — продолжаем её движение с противоположной строны
+      if (snakeRed.x < 0) {
+        snakeRed.x = canvas.width - grid;
+      }
+      else if (snakeRed.x >= canvas.width) {
+        snakeRed.x = 0;
+      }
+      // Делаем то же самое для движения по вертикали
+      if (snakeRed.y < 0) {
+        snakeRed.y = canvas.height - grid;
+      }
+      else if (snakeRed.y >= canvas.height) {
+        snakeRed.y = 0;
+      }
+      // Продолжаем двигаться в выбранном направлении. Голова всегда впереди, поэтому добавляем её координаты в начало массива, который отвечает за всю змейку
+      snakeRed.cells.unshift({ x: snakeRed.x, y: snakeRed.y });
+      // Одно движение змейки — один новый нарисованный квадратик 
+      context.fillStyle = 'red';
+      // Обрабатываем каждый элемент змейки
+      snakeRed.cells.forEach(function (cell, index) {
+        // Чтобы создать эффект клеточек, делаем зелёные квадратики меньше на один пиксель, чтобы вокруг них образовалась чёрная граница
+        context.fillRect(cell.x, cell.y, grid - 5, grid - 5);
+        // Проверяем, не столкнулась ли змея сама с собой
+        // Для этого перебираем весь массив и смотрим, есть ли у нас в массиве змейки две клетки с одинаковыми координатами 
+        for (var i = index + 1; i < snakeRed.cells.length; i++) {
+          // Если такие клетки есть — начинаем игру заново
+          if (cell.x === snakeRed.cells[i].x && cell.y === snakeRed.cells[i].y) {
+            // Задаём стартовые параметры основным переменным
+            snakeRed.x = 160;
+            snakeRed.y = 160;
+            snakeRed.cells = [];
+            snakeRed.dx = grid;
+            snakeRed.dy = 0;
+          }
+        }
+      });
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      // Двигаем змейку с нужной скоростью
+      snakeBlue.x += snakeBlue.dx;
+      snakeBlue.y += snakeBlue.dy;
+      // Если змейка достигла края поля по горизонтали — продолжаем её движение с противоположной строны
+      if (snakeBlue.x < 0) {
+        snakeBlue.x = canvas.width - grid;
+      }
+      else if (snakeBlue.x >= canvas.width) {
+        snakeBlue.x = 0;
+      }
+      // Делаем то же самое для движения по вертикали
+      if (snakeBlue.y < 0) {
+        snakeBlue.y = canvas.height - grid;
+      }
+      else if (snakeBlue.y >= canvas.height) {
+        snakeBlue.y = 0;
+      }
+      context.fillStyle = 'blue';
+      snakeBlue.cells.forEach(function (cell, index) {
+        // Чтобы создать эффект клеточек, делаем зелёные квадратики меньше на один пиксель, чтобы вокруг них образовалась чёрная граница
+        context.fillRect(cell.x, cell.y, grid - 5, grid - 5);
+        // Проверяем, не столкнулась ли змея сама с собой
+        // Для этого перебираем весь массив и смотрим, есть ли у нас в массиве змейки две клетки с одинаковыми координатами 
+        for (var i = index + 1; i < snakeBlue.cells.length; i++) {
+          // Если такие клетки есть — начинаем игру заново
+          if (cell.x === snakeBlue.cells[i].x && cell.y === snakeBlue.cells[i].y) {
+            // Задаём стартовые параметры основным переменным
+            snakeBlue.x = 160;
+            snakeBlue.y = 160;
+            snakeBlue.cells = [];
+            snakeBlue.dx = grid;
+            snakeBlue.dy = 0;
+          }
+        }
+      });
+    }
+    // Смотрим, какие нажимаются клавиши, и реагируем на них нужным образом
+    document.addEventListener('keydown', function (e) {
+      // Дополнительно проверяем такой момент: если змейка движется, например, влево, то ещё одно нажатие влево или вправо ничего не поменяет — змейка продолжит двигаться в ту же сторону, что и раньше. Это сделано для того, чтобы не разворачивать весь массив со змейкой на лету и не усложнять код игры.
+      // Стрелка влево
+      // Если нажата стрелка влево, и при этом змейка никуда не движется по горизонтали…
+      if (e.which === 37) {
+        // то даём ей движение по горизонтали, влево, а вертикальное — останавливаем
+        // Та же самая логика будет и в остальных кнопках
+        snake.dx = -grid;
+        snake.dy = 0;
+        requestAnimationFrame(loop);
+      }
+      // Стрелка вверх
+      else if (e.which === 38) {
+        snake.dy = -grid;
+        snake.dx = 0;
+        requestAnimationFrame(loop);
+      }
+      // Стрелка вправо
+      else if (e.which === 39) {
+        snake.dx = grid;
+        snake.dy = 0;
+        requestAnimationFrame(loop);
+      }
+      // Стрелка вниз
+      else if (e.which === 40) {
+        snake.dy = grid;
+        snake.dx = 0;
+        requestAnimationFrame(loop);
+      }
+    });
+  </script>
+</body>
+
+</html>
