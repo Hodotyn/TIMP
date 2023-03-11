@@ -44,6 +44,7 @@
       [[240, 120],[80, 160]],
       [[40, 120],[120, 80]]
     ];
+    var c = 0;
     //флаг - чей ход
     var move = true;
     // А вот и сама змейка
@@ -146,7 +147,16 @@
       // Обрабатываем каждый элемент змейки
         snakeBlue.cells.forEach(function (cell, index) {
           context.fillRect(cell.x, cell.y, grid - 5, grid - 5);
-          }// Чтобы создать эффект клеточек, делаем зелёные квадратики меньше на один пиксель, чтобы вокруг них образовалась чёрная граница
+          for (var i = index + 1; i < snakeBlue.cells.length; i++) {
+            if (cell.x === snakeBlue.cells[i].x && cell.y === snakeBlue.cells[i].y) {
+            // Задаём стартовые параметры основным переменным
+              snakeBlue.x = 160;
+              snakeBlue.y = 160;
+              snakeBlue.cells = [];
+              snakeBlue.dx = grid;
+              snakeBlue.dy = 0;
+          }}
+        }// Чтобы создать эффект клеточек, делаем зелёные квадратики меньше на один пиксель, чтобы вокруг них образовалась чёрная граница
         );
         context.fillStyle = 'red';
         snakeRed.cells.forEach(function (cell, index) {
